@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.gateway"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -33,7 +33,7 @@ android {
         applicationId = "com.example.gateway"
         // Vivo Y66 compatibility: target Android 6.0+ for SMS/background service support.
         minSdk = 23
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 37
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
