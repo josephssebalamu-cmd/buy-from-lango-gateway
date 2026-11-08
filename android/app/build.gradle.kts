@@ -38,21 +38,21 @@ android {
         versionName = flutter.versionName
     }
 
-    // 2. Add the Signing Configs block
+    // 2. Signing Configs
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String?
             keyPassword = keystoreProperties["keyPassword"] as String?
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+            // FIXED: Look for the keystore in the project root (where GitHub Actions puts it)
+            storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
             storePassword = keystoreProperties["storePassword"] as String?
         }
     }
 
     buildTypes {
         release {
-            // 3. Use the release signing config instead of debug
+            // 3. Use the release signing config
             signingConfig = signingConfigs.getByName("release")
-            // Optional: Enable minification to shrink APK size
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
