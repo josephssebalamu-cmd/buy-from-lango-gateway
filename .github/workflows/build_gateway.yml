@@ -30,7 +30,8 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.GATEWAY_KEYSTORE_BASE64 }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 --decode > upload-keystore.jks
+          # FIXED: Output goes directly into the android folder
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
 
       - name: Create key.properties
         env:
@@ -38,10 +39,11 @@ jobs:
           KEY_ALIAS: ${{ secrets.GATEWAY_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.GATEWAY_KEY_PASSWORD }}
         run: |
-          echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
-          echo "keyPassword=$KEY_PASSWORD" >> key.properties
-          echo "keyAlias=$KEY_ALIAS" >> key.properties
-          echo "storeFile=upload-keystore.jks" >> key.properties
+          # FIXED: Output goes directly into the android folder
+          echo "storePassword=$KEYSTORE_PASSWORD" > android/key.properties
+          echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$KEY_ALIAS" >> android/key.properties
+          echo "storeFile=upload-keystore.jks" >> android/key.properties
 
       - name: Install Dependencies
         run: flutter pub get
