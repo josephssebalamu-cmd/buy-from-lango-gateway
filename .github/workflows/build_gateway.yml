@@ -1,0 +1,58 @@
+name: Build Gateway App APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Decode Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.GATEWAY_KEYSTORE_BASE64 }}
+        # Note the path is now inside the gateway folder
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > gateway/upload-keystore.jks
+
+      - name: Create key.properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.GATEWAY_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.GATEWAY_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.GATEWAY_KEY_PASSWORD }}
+        run: |
+          echo "storePassword=$KEYSTORE_PASSWORD" > gateway/key.properties
+          echo "keyPassword=$KEY_PASSWORD" >> gateway/key.properties
+          echo "keyAlias=$KEY_ALIAS" >> gateway/key.properties
+          echo "storeFile=upload-keystore.jks" >> gateway/key.properties
+
+      - name: Install Dependencies
+        working-directory: ./gateway
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: ./gateway
+        run: flutter build apk --release
+
+      - name: Upload Gateway APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-release-apk
+          path: gateway/build/app/outputs/flutter-apk/app-release.apk
