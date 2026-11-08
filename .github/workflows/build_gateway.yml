@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20 # Prevents hanging forever
+    timeout-minutes: 20 
 
     steps:
       - name: Checkout Repository
@@ -29,7 +29,6 @@ jobs:
       - name: Decode Keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.GATEWAY_KEYSTORE_BASE64 }}
-        # REMOVED 'gateway/' path prefix
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > upload-keystore.jks
 
@@ -38,7 +37,6 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.GATEWAY_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.GATEWAY_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.GATEWAY_KEY_PASSWORD }}
-        # REMOVED 'gateway/' path prefix
         run: |
           echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
           echo "keyPassword=$KEY_PASSWORD" >> key.properties
@@ -46,15 +44,13 @@ jobs:
           echo "storeFile=upload-keystore.jks" >> key.properties
 
       - name: Install Dependencies
-        # REMOVED working-directory
         run: flutter pub get
 
       - name: Build APK
-        # REMOVED working-directory
-        run: flutter build apk --release
+        run: flutter build apk --release --android-skip-build-dependency-validation
 
       - name: Upload Gateway APK
         uses: actions/upload-artifact@v4
         with:
-      - name: Build APK
-        run: flutter build apk --release --android-skip-build-dependency-validation
+          name: gateway-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
