@@ -30,7 +30,7 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.GATEWAY_KEYSTORE_BASE64 }}
         run: |
-          # FIXED: Output goes directly into the android folder
+          # Output goes directly into the android folder
           echo "$KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
 
       - name: Create key.properties
@@ -39,7 +39,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.GATEWAY_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.GATEWAY_KEY_PASSWORD }}
         run: |
-          # FIXED: Output goes directly into the android folder
+          # Output goes directly into the android folder
           echo "storePassword=$KEYSTORE_PASSWORD" > android/key.properties
           echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
           echo "keyAlias=$KEY_ALIAS" >> android/key.properties
@@ -49,8 +49,8 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        # ADDED: --no-tree-shake-icons to prevent the Flutter file watcher from hanging
-        run: flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation
+        # Flags to prevent the file watcher hang and bypass the Flutter version checks
+        run: flutter build apk --release --no-pub --no-tree-shake-icons --android-skip-build-dependency-validation
 
       - name: Upload Gateway APK
         uses: actions/upload-artifact@v4
