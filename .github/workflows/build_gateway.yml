@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20 # Prevents hanging forever
 
     steps:
       - name: Checkout Repository
@@ -28,31 +29,33 @@ jobs:
       - name: Decode Keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.GATEWAY_KEYSTORE_BASE64 }}
-        # Note the path is now inside the gateway folder
+        # REMOVED 'gateway/' path prefix
         run: |
-          echo "$KEYSTORE_BASE64" | base64 --decode > gateway/upload-keystore.jks
+          echo "$KEYSTORE_BASE64" | base64 --decode > upload-keystore.jks
 
       - name: Create key.properties
         env:
           KEYSTORE_PASSWORD: ${{ secrets.GATEWAY_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.GATEWAY_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.GATEWAY_KEY_PASSWORD }}
+        # REMOVED 'gateway/' path prefix
         run: |
-          echo "storePassword=$KEYSTORE_PASSWORD" > gateway/key.properties
-          echo "keyPassword=$KEY_PASSWORD" >> gateway/key.properties
-          echo "keyAlias=$KEY_ALIAS" >> gateway/key.properties
-          echo "storeFile=upload-keystore.jks" >> gateway/key.properties
+          echo "storePassword=$KEYSTORE_PASSWORD" > key.properties
+          echo "keyPassword=$KEY_PASSWORD" >> key.properties
+          echo "keyAlias=$KEY_ALIAS" >> key.properties
+          echo "storeFile=upload-keystore.jks" >> key.properties
 
       - name: Install Dependencies
-        working-directory: ./gateway
+        # REMOVED working-directory
         run: flutter pub get
 
       - name: Build APK
-        working-directory: ./gateway
+        # REMOVED working-directory
         run: flutter build apk --release
 
       - name: Upload Gateway APK
         uses: actions/upload-artifact@v4
         with:
           name: gateway-release-apk
-          path: gateway/build/app/outputs/flutter-apk/app-release.apk
+          # REMOVED 'gateway/' path prefix
+          path: build/app/outputs/flutter-apk/app-release.apk
