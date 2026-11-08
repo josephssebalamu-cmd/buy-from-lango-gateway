@@ -39,16 +39,20 @@ android {
     }
 
     // 2. Signing Configs
-    signingConfigs {
+       signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String?
-            keyPassword = keystoreProperties["keyPassword"] as String?
-            // FIXED: Look for the keystore in the project root (where GitHub Actions puts it)
-            storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String?
+            keyAlias = keystoreProperties.getProperty("keyAlias") ?: "upload"
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+            storePassword = keystoreProperties.getProperty("storePassword")
+            // FIXED: Use getProperty and fallback directly in rootProject.file
+            storeFile = rootProject.file(keystoreProperties.getProperty("storeFile") ?: "upload-keystore.jks")
         }
     }
 
+
+
+
+    
     buildTypes {
         release {
             // 3. Use the release signing config
